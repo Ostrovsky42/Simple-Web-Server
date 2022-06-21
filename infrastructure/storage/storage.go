@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"log"
 	"time"
+	"errors"
 )
 
 type transactionStorage struct {
@@ -12,6 +13,9 @@ type transactionStorage struct {
 }
 
 func NewStorage(db *sql.DB) *transactionStorage {
+	if db==nil{
+		panic("db is nil")
+	}
 	return &transactionStorage{db: db}
 }
 
@@ -42,6 +46,9 @@ func (s *transactionStorage) AddToBalance(userId int, amount float32) error {
 	if err != nil {
 		log.Print("GetBalanceByUserId Query error", err)
 		return err
+	}
+	if amount<0&&balance+amount<0{
+		return errors.New("balance subzero")
 	}
 	q := `UPDATE USERS SET BALANCE=$1 WHERE Id=$2`
 	_, err = s.db.Exec(q, balance+amount, userId)
