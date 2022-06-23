@@ -3,11 +3,8 @@ package storage
 import (
 	"SimplyWebServer/library"
 	"database/sql"
-	"errors"
-	"fmt"
-	"time"
-
 	"github.com/sirupsen/logrus"
+	"time"
 )
 
 type transactionStorage struct {
@@ -40,18 +37,20 @@ func (s *transactionStorage) CreateUser() (int, error) {
 	return userId, nil
 }
 
-func (s *transactionStorage) UpdateBalanceByUserId(userId int, amount float32) (float32, error) {
+func (s *transactionStorage) UpdateBalanceByUserId(userId int, amount float64) (float64, error) {
 	balance, err := s.getBalanceByUserId(userId)
 	if err != nil {
 		return 0, err
 	}
 
 	if amount < 0 && balance+amount < 0 {
-		return 0, errors.New(fmt.Sprintf(`i can not perform the operation, the user with id=%d balance will be below zero`, userId))
+		return 0, library.ErrBalanceBeZero
+
 	}
 	q := `UPDATE USERS SET BALANCE=$1 WHERE Id=$2`
-	_, err = s.db.Exec(q, s.session[userId].Balance+amount, userId)
+	res, err := s.db.Exec(q, s.session[userId].Balance+amount, userId)
 	if err != nil {
+		
 		s.log.Error("UpdateBalanceByUserId:", err)
 		return 0, err
 	}
@@ -59,7 +58,7 @@ func (s *transactionStorage) UpdateBalanceByUserId(userId int, amount float32) (
 	return s.session[userId].Balance, nil
 }
 
-func (s *transactionStorage) AddTransaction(transactType library.TransactionType, userId int, amount float32) error {
+func (s *transactionStorage) AddTransaction(transactType library.TransactionType, userId int, amount float64) error {
 	q := `INSERT INTO TRANSACTIONS (type, userId, amount, time) VALUES ($1,$2,$3,$4)`
 	_, err := s.db.Exec(q, int(transactType), userId, amount, time.Now())
 	if err != nil {
@@ -69,16 +68,17 @@ func (s *transactionStorage) AddTransaction(transactType library.TransactionType
 	return nil
 }
 
-func (s *transactionStorage) getBalanceByUserId(userId int) (float32, error) {
-	var balance float32
+func (s *transactionStorage) getBalanceByUserId(userId int) (float64, error) {
+	var balance sql.NullFloat64
 	if _, ok := s.session[userId]; !ok {
-		q := `SELECT balance FROM USERS  WHERE Id=$1`
+		q := `SELECT SUM(amount) FROM TRANSACTIONS WHERE userid=$1`
 		err := s.db.QueryRow(q, userId).Scan(&balance)
 		if err != nil {
 			s.log.Error("getBalanceByUserId:", err)
 			return -1, err
-		}
-		s.session[userId] = User{userId, balance}
+		}		
+			s.session[userId] = User{userId, balance.Float64}
+		
 	}
 
 	return s.session[userId].Balance, nil

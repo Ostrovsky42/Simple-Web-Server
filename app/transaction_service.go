@@ -20,8 +20,13 @@ func NewTransactionService(Storage Storage, l *logrus.Logger) *transactionServic
 	}
 }
 
+func (t *transactionService) AddToBalance(userId int, amount float64) (float64, error) {
 
-func (t *transactionService) AddToBalance(userId int, amount float32) (float32, error) {
+
+	if err:=ValidateParams(amount, userId);err!=nil {
+		t.log.Error(err)
+		return 0,err
+	}
 
 	balance, err := t.Storage.UpdateBalanceByUserId(userId, amount)
 	if err != nil {
@@ -34,7 +39,12 @@ func (t *transactionService) AddToBalance(userId int, amount float32) (float32, 
 	return balance, nil
 }
 
-func (t *transactionService) AddTransfer(fromId int, toId int, amount float32) (float32, float32, error) {
+func (t *transactionService) AddTransfer(fromId int, toId int, amount float64) (float64, float64, error) {
+
+	if err:=ValidateParams(amount, fromId, toId);err!=nil {
+		t.log.Error(err)
+		return 0,0,err
+	}
 
 	fromBalance, err := t.Storage.UpdateBalanceByUserId(fromId, -amount)
 	if err != nil {

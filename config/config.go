@@ -13,6 +13,7 @@ type DBConfig struct {
 	User     string
 	Password string
 	DBName   string
+	DSN 	 string
 }
 
 type Config struct {
@@ -31,6 +32,7 @@ func NewConfig() *Config {
 			User:     getEnv("DB_USER_NAME", ""),
 			Password: getEnv("DB_PASSWORD", ""),
 			DBName:   getEnv("DB_NAME", ""),
+			DSN:	  getEnv("DSN",""),
 		},
 	}
 }
