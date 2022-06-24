@@ -48,9 +48,8 @@ func (s *transactionStorage) UpdateBalanceByUserId(userId int, amount float64) (
 
 	}
 	q := `UPDATE USERS SET BALANCE=$1 WHERE Id=$2`
-	res, err := s.db.Exec(q, s.session[userId].Balance+amount, userId)
+	_,err = s.db.Exec(q, s.session[userId].Balance+amount, userId)
 	if err != nil {
-		
 		s.log.Error("UpdateBalanceByUserId:", err)
 		return 0, err
 	}
