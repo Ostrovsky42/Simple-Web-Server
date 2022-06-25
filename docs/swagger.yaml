@@ -1,0 +1,105 @@
+basePath: /
+definitions:
+  handlers.AddToBalanceRequest:
+    properties:
+      amount:
+        type: number
+      userId:
+        type: integer
+    type: object
+  handlers.AddTransferRequest:
+    properties:
+      amount:
+        type: number
+      fromId:
+        type: integer
+      toId:
+        type: integer
+    type: object
+  handlers.JSONBadRequest:
+    properties:
+      message:
+        example: Bad Request
+        type: string
+    type: object
+  handlers.JSONStatusOK:
+    properties:
+      Message:
+        example: OK
+        type: string
+    type: object
+host: localhost:8088
+info:
+  contact: {}
+  description: This is a sample server  server.
+  title: Simply Web Server API
+  version: "1.0"
+paths:
+  /add:
+    post:
+      description: The handler replenishes the balance of the specified user by the
+        specified amount
+      parameters:
+      - description: Add to balance
+        in: body
+        name: AddToBalance
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.AddToBalanceRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.JSONStatusOK'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.JSONBadRequest'
+      summary: Add to balance by id
+      tags:
+      - Transaction
+  /add_user:
+    post:
+      description: Creating a user to implement transactions
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.JSONStatusOK'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.JSONBadRequest'
+      summary: Create User
+      tags:
+      - User
+  /transfer:
+    post:
+      description: The handler transfers the specified amount from the account of
+        the first user to the account of another
+      parameters:
+      - description: AddTransfer
+        in: body
+        name: AddTransfer
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.AddTransferRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.JSONStatusOK'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.JSONBadRequest'
+      summary: Transferring funds to another balance
+      tags:
+      - Transaction
+swagger: "2.0"

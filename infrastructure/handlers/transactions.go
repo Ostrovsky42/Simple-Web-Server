@@ -23,6 +23,17 @@ func NewTransactionHandler(Service TransactionService, l *logrus.Logger) *transa
 	}
 }
 
+
+// AddToBalance godoc
+// @Summary Add to funds balance by id
+// @Description The handler replenishes the balance of the specified user by the specified amount
+// @Tags Transaction
+// @Produce json
+// @Param AddToBalance body AddToBalanceRequest true "Add to balance"
+// @Success  200 {object} JSONStatusOK 
+// @Failure  400 {object} JSONBadRequest
+// @Failure  500 {object} JSONInternalServerError
+// @Router /add [post]
 func (t *transactionHandler) AddToBalance(ctx echo.Context) error {
 	req := new(AddToBalanceRequest)
 
@@ -41,6 +52,16 @@ func (t *transactionHandler) AddToBalance(ctx echo.Context) error {
 			req.UserId, newBalance))
 }
 
+// AddTransfer godoc
+// @Summary Transferring funds to another balance
+// @Description The handler transfers the specified amount from the account of the first user to the account of another
+// @Tags Transaction
+// @Produce json
+// @Param AddTransfer body AddTransferRequest true "AddTransfer"
+// @Success  200 {object} JSONStatusOK 
+// @Failure  400 {object} JSONBadRequest
+// @Failure  500 {object} JSONInternalServerError
+// @Router /transfer [post]
 func (t *transactionHandler) AddTransfer(ctx echo.Context) error {
 	req := new(AddTransferRequest)
 	err := ctx.Bind(&req)

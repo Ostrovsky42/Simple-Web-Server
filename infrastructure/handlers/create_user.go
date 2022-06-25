@@ -7,6 +7,16 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+
+// CreateUser godoc
+// @Summary Create User
+// @Description Creating a user to implement transactions
+// @Tags User
+// @Produce json
+// @Success  200 {object} JSONStatusOK 
+// @Failure  400 {object} JSONBadRequest
+// @Failure  500 {object} JSONInternalServerError
+// @Router /add_user [post]
 func CreateUserProc(creator UserCreator) func(ctx echo.Context) error {
 	return func(ctx echo.Context) error {
 		userId, err := creator.CreateUser()

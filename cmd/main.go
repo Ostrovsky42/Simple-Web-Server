@@ -2,6 +2,7 @@ package main
 
 import (
 	"SimplyWebServer/app"
+	_ "SimplyWebServer/docs"
 	"SimplyWebServer/config"
 	"SimplyWebServer/infrastructure/handlers"
 	"SimplyWebServer/infrastructure/storage"
@@ -9,19 +10,26 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"net/http"
-	"os"
-	"os/signal"
-	"time"
-
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	bin "github.com/golang-migrate/migrate/v4/source/go_bindata"
 	"github.com/labstack/echo/v4"
-	"github.com/labstack/gommon/log"
 	_ "github.com/lib/pq"
 	"github.com/sirupsen/logrus"
+	"github.com/swaggo/echo-swagger"
+	"net/http"
+	"os"
+	"os/signal"
+	"time"
 )
+
+// @title        Simply Web Server API
+// @version      1.0
+// @description  This is a sample web server for replenishment and transfer of funds.
+
+// @host         localhost:8088
+// @BasePath     /
+
 
 func main() {
 	e := echo.New()
@@ -41,6 +49,7 @@ func main() {
 	e.POST("/add_user", handlers.CreateUserProc(storage))
 	e.POST("/add", handler.AddToBalance)
 	e.POST("/transfer", handler.AddTransfer)
+	e.GET("/swagger/*", echoSwagger.WrapHandler)
 	migrateDB(config.DSN)
 
 	go func() {
@@ -78,18 +87,18 @@ func migrateDB(dsn string) {
 	s := bin.Resource(migrations.AssetNames(), migrations.Asset)
 	d, err := bin.WithInstance(s)
 	if err != nil {
-		log.Fatal(err)
+		logrus.Fatal(err)
 	}
 	m, err := migrate.NewWithSourceInstance("go-bindata", d, dsn)
 	if err != nil {
-		log.Fatal(err)
+		logrus.Fatal(err)
 	}
 
 	if err = m.Up(); err != nil {
 		if err == migrate.ErrNoChange {
-			log.Warn(err)
+			logrus.Warn(err)
 		} else {
-			log.Fatal(err)
+			logrus.Fatal(err)
 		}
 	}
 }
